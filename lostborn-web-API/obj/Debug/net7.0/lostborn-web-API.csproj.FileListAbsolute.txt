@@ -536,3 +536,4 @@ C:\Projects\lostborn-web-API\lostborn-web-API\obj\Debug\net7.0\refint\lostborn-w
 C:\Projects\lostborn-web-API\lostborn-web-API\obj\Debug\net7.0\lostborn-web-API.pdb
 C:\Projects\lostborn-web-API\lostborn-web-API\obj\Debug\net7.0\lostborn-web-API.genruntimeconfig.cache
 C:\Projects\lostborn-web-API\lostborn-web-API\obj\Debug\net7.0\ref\lostborn-web-API.dll
+C:\Projects\lostborn-web-API\lostborn-web-API\obj\Debug\net7.0\lostborn-web-API.sourcelink.json

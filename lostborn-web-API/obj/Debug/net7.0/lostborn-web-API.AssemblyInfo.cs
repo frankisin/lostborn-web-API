@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("lostborn-web-API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7a84dd31e0c0a9d2ee5e912de4bf52da5e32d9e7")]
 [assembly: System.Reflection.AssemblyProductAttribute("lostborn-web-API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("lostborn-web-API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

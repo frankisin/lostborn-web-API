@@ -85,17 +85,34 @@ namespace lostborn_backend.Controllers
             return CreatedAtAction(nameof(AddUser), user);
         }
 
-        // API Call to update user using Id...(UPDATE)
         [HttpPut]
-        public async Task<IActionResult> PutUser(Users user)
+        public async Task<IActionResult> PutUser(UpdateUserDto userDto)
         {
-            dataContext.Entry(user).State = EntityState.Modified;
+            if (userDto == null)
+            {
+                return BadRequest("Invalid user data");
+            }
+
+            var existingUser = await dataContext.Users.FindAsync(userDto.ID);
+
+            if (existingUser == null)
+            {
+                return NotFound(); // Or handle the case where the user with the specified ID is not found
+            }
+
+            // Update the properties of the existing user with the values from the DTO
+            existingUser.firstName = userDto.firstName;
+            existingUser.lastName = userDto.lastName;
+            existingUser.streetAddress = userDto.streetAddress;
+            existingUser.city = userDto.city;
+            existingUser.zipCode = userDto.zipCode;
+            existingUser.email = userDto.email;
+            existingUser.username = userDto.username;
+            existingUser.password = userDto.password;
+            existingUser.Role = userDto.Role;
 
             try
             {
-                // Ensure the associated Cart is attached to the context
-                dataContext.Entry(user.Cart).State = EntityState.Modified;
-
                 await dataContext.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -107,7 +124,7 @@ namespace lostborn_backend.Controllers
             // Fetch the updated data from the database, including associated carts
             var updatedUser = await dataContext.Users
                 .Include(u => u.Cart) // Ensure Cart is included in the query
-                .FirstOrDefaultAsync(u => u.ID == user.ID);
+                .FirstOrDefaultAsync(u => u.ID == existingUser.ID);
 
             // You can create a custom response object or use an anonymous object
             var response = new
@@ -120,10 +137,25 @@ namespace lostborn_backend.Controllers
             return Ok(response);
         }
 
+
         // Helper function to check if a user is present..
         private bool UserExists(int id)
         {
             return dataContext.Users.Any(e => e.ID == id);
+        }
+        
+        public class UpdateUserDto
+        {
+            public int ID { get; set; }
+            public string firstName { get; set; }
+            public string lastName { get; set; }
+            public string streetAddress { get; set; }
+            public string city { get; set; }
+            public string zipCode { get; set; }
+            public string email { get; set; }
+            public string username { get; set; }
+            public string password { get; set; }
+            public string Role { get; set; }
         }
 
         // API Call to delete a user using Id...(DELETE)
