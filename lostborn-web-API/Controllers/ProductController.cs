@@ -23,7 +23,7 @@ public class ProductController : Controller
     [HttpGet]
     public async Task<IActionResult> GetAllMembers()
     {
-        var res = await dataContext.products.ToListAsync();
+        var res = await dataContext.Products.ToListAsync();
 
         return Ok(res);
     }
@@ -32,11 +32,11 @@ public class ProductController : Controller
     [HttpGet("{ID}")]
     public async Task<ActionResult<Products>> GetMember(int ID)
     {
-        if (dataContext.products == null)
+        if (dataContext.Products == null)
         {
             return NotFound();
         }
-        var member = await dataContext.products.FindAsync(ID);
+        var member = await dataContext.Products.FindAsync(ID);
 
         if (member == null) { return NotFound(); };
 
@@ -48,7 +48,7 @@ public class ProductController : Controller
     [HttpPost]
     public async Task<IActionResult> AddMember([FromBody] Products member)
     {
-        await dataContext.products.AddAsync(member);
+        await dataContext.Products.AddAsync(member);
         await dataContext.SaveChangesAsync();
 
         return CreatedAtAction(nameof(AddMember), member);
@@ -71,7 +71,7 @@ public class ProductController : Controller
         }
 
         // Fetch the updated data from the database
-        var updatedMember = await dataContext.products.FindAsync(member.ID);
+        var updatedMember = await dataContext.Products.FindAsync(member.ID);
 
         // You can create a custom response object or use an anonymous object
         var response = new
@@ -84,19 +84,19 @@ public class ProductController : Controller
         return Ok(response);
     }
     //Helper function to check if a member is present..
-    private bool MemberExists(long id) { return (dataContext.products?.Any(e => e.ID == id)).GetValueOrDefault(); }
+    private bool MemberExists(long id) { return (dataContext.Products?.Any(e => e.ID == id)).GetValueOrDefault(); }
 
     //API Call to delete a member using Id...(DELETE)
     [HttpDelete("{ID}")]
     public async Task<IActionResult> DeleteMember(int ID)
     {
-        if (dataContext.products == null) { return NotFound(); }
+        if (dataContext.Products == null) { return NotFound(); }
 
-        var member = await dataContext.products.FindAsync(ID);
+        var member = await dataContext.Products.FindAsync(ID);
 
         if (member == null) { return NotFound(); }
 
-        dataContext.products.Remove(member);
+        dataContext.Products.Remove(member);
 
         await dataContext.SaveChangesAsync();
 

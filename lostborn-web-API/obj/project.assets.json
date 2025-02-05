@@ -12074,26 +12074,25 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\legen\\.nuget\\packages\\": {}
+    "/Users/frankvelazquez/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Projects\\lostborn-web-API\\lostborn-web-API\\lostborn-web-API.csproj",
+      "projectUniqueName": "/Users/frankvelazquez/Projects/lostborn-web-API/lostborn-web-API/lostborn-web-API.csproj",
       "projectName": "lostborn-web-API",
-      "projectPath": "C:\\Projects\\lostborn-web-API\\lostborn-web-API\\lostborn-web-API.csproj",
-      "packagesPath": "C:\\Users\\legen\\.nuget\\packages\\",
-      "outputPath": "C:\\Projects\\lostborn-web-API\\lostborn-web-API\\obj\\",
+      "projectPath": "/Users/frankvelazquez/Projects/lostborn-web-API/lostborn-web-API/lostborn-web-API.csproj",
+      "packagesPath": "/Users/frankvelazquez/.nuget/packages/",
+      "outputPath": "/Users/frankvelazquez/Projects/lostborn-web-API/lostborn-web-API/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\legen\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/frankvelazquez/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net7.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "/usr/local/share/dotnet/sdk/7.0.312/Sdks/Microsoft.NET.Sdk.Web/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -12178,7 +12177,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.312/RuntimeIdentifierGraph.json"
       }
     }
   }

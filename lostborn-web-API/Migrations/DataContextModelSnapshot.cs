@@ -60,6 +60,41 @@ namespace lostborn_web_API.Migrations
                     b.ToTable("Carts");
                 });
 
+            modelBuilder.Entity("lostborn_backend.Models.CasinoTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("BalanceAfter")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("BetAmount")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<string>("GameType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal>("Multiplier")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Winnings")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CasinoTransactions");
+                });
+
             modelBuilder.Entity("lostborn_backend.Models.IPAccess", b =>
                 {
                     b.Property<int>("ID")
@@ -96,7 +131,103 @@ namespace lostborn_web_API.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("ipaccess");
+                    b.ToTable("Access");
+                });
+
+            modelBuilder.Entity("lostborn_backend.Models.Invoice", b =>
+                {
+                    b.Property<int>("InvoiceID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("InvoiceDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("InvoiceNumber")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<string>("TransactionId")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("InvoiceID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("Invoices");
+                });
+
+            modelBuilder.Entity("lostborn_backend.Models.InvoiceItem", b =>
+                {
+                    b.Property<int>("InvoiceItemID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("InvoiceID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.HasKey("InvoiceItemID");
+
+                    b.HasIndex("InvoiceID");
+
+                    b.HasIndex("ProductID");
+
+                    b.ToTable("InvoiceItems");
+                });
+
+            modelBuilder.Entity("lostborn_backend.Models.PaymentMethod", b =>
+                {
+                    b.Property<int>("PaymentMethodID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("CardHolderName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("CardNumber")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Cvv")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ExpirationDate")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("PaymentMethodID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("PaymentMethods");
                 });
 
             modelBuilder.Entity("lostborn_backend.Models.Products", b =>
@@ -125,13 +256,11 @@ namespace lostborn_web_API.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("InStock")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("InStock")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Price")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<string>("ProdFrag")
                         .IsRequired()
@@ -145,13 +274,83 @@ namespace lostborn_web_API.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Weight")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("ID");
 
-                    b.ToTable("products");
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("lostborn_backend.Models.ShippingAddress", b =>
+                {
+                    b.Property<int>("ShippingAddressID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("StreetAddress")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("ShippingAddressID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("ShippingAddresses");
+                });
+
+            modelBuilder.Entity("lostborn_backend.Models.Transaction", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int?>("InvoiceID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantityChange")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("TransactionType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("lostborn_backend.Models.Users", b =>
@@ -187,6 +386,9 @@ namespace lostborn_web_API.Migrations
                     b.Property<string>("streetAddress")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<decimal>("userBalance")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<string>("username")
                         .IsRequired()
@@ -231,9 +433,77 @@ namespace lostborn_web_API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("lostborn_backend.Models.CasinoTransaction", b =>
+                {
+                    b.HasOne("lostborn_backend.Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("lostborn_backend.Models.Invoice", b =>
+                {
+                    b.HasOne("lostborn_backend.Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("lostborn_backend.Models.InvoiceItem", b =>
+                {
+                    b.HasOne("lostborn_backend.Models.Invoice", "Invoice")
+                        .WithMany("InvoiceItems")
+                        .HasForeignKey("InvoiceID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("lostborn_backend.Models.Products", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("lostborn_backend.Models.PaymentMethod", b =>
+                {
+                    b.HasOne("lostborn_backend.Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("lostborn_backend.Models.ShippingAddress", b =>
+                {
+                    b.HasOne("lostborn_backend.Models.Users", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("lostborn_backend.Models.Carts", b =>
                 {
                     b.Navigation("CartItems");
+                });
+
+            modelBuilder.Entity("lostborn_backend.Models.Invoice", b =>
+                {
+                    b.Navigation("InvoiceItems");
                 });
 
             modelBuilder.Entity("lostborn_backend.Models.Users", b =>

@@ -2,6 +2,7 @@
 using lostborn_backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,6 +26,43 @@ namespace lostborn_backend.Controllers
             var users = await dataContext.Users.ToListAsync();
             return Ok(users);
         }
+        [HttpGet("Balance/{ID}")]
+        public async Task<IActionResult> GetUserBalance(int ID)
+        {
+            var user = await dataContext.Users.FindAsync(ID);
+
+            if (user == null)
+            {
+                return NotFound(new { Message = "User not found" });
+            }
+
+            return Ok(new { user.userBalance });
+        }
+        [HttpPut("UpdateBalance/{id}")]
+        public async Task<IActionResult> UpdateUserBalance(int id, [FromBody] decimal balanceChange)
+        {
+            // Find the user by ID
+            var user = await dataContext.Users.FirstOrDefaultAsync(u => u.ID == id);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            // Increment or decrement the balance
+            user.userBalance += balanceChange;
+
+            try
+            {
+                // Save changes to the database
+                await dataContext.SaveChangesAsync();
+                return Ok(new { message = "Balance updated successfully", userBalance = user.userBalance });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
 
         [HttpGet("{ID}")]
         public async Task<ActionResult<Users>> GetUser(int ID)

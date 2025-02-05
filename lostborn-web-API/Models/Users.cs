@@ -34,13 +34,18 @@ namespace lostborn_backend.Models
 
         [Required]
         public string Role { get; set; }
-        
+
+        [Required]
+        public decimal userBalance { get; set; }
+
+
+
         // Navigation property to represent the one-to-one relationship with Cart
         public Carts Cart { get; set; }
 
         public Users() { }
 
-        public Users(int id, string firstName, string lastName, string streetAddress, string city, string zipCode, string email, string username, string password, string Role)
+        public Users(int id, string firstName, string lastName, string streetAddress, string city, string zipCode, string email, string username, string password, string Role,decimal userBalance)
         {
             ID = id;
             this.firstName = firstName;
@@ -52,6 +57,7 @@ namespace lostborn_backend.Models
             this.username = username;
             this.password = password;
             this.Role = Role;
+            this.userBalance = userBalance;
 
         }
     }

@@ -11,11 +11,17 @@ namespace lostborn_backend.Helpers
 		{
 
 		}
-        public DbSet<IPAccess> ipaccess { get; set; }
-        public DbSet<Products> products { get; set; }
+        public DbSet<IPAccess> Access { get; set; }
+        public DbSet<Products> Products { get; set; }
         public DbSet<Users> Users { get; set; }
         public DbSet<Carts> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<InvoiceItem>InvoiceItems { get; set; }
+        public DbSet<Transaction>Transactions { get; set; }
+        public DbSet<PaymentMethod>PaymentMethods { get; set; }
+        public DbSet<ShippingAddress>ShippingAddresses { get; set; }
+        public DbSet<CasinoTransaction> CasinoTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,7 +30,7 @@ namespace lostborn_backend.Helpers
                 .HasOne(u => u.Cart)          // One User has one Cart
                 .WithOne(c => c.User)         // One Cart belongs to one User
                 .HasForeignKey<Carts>(c => c.UserID); // Foreign key in Carts referencing Users
-                                // Make the relationship required
+                               
 
             // One-to-Many relationship between Carts and CartItems
             modelBuilder.Entity<Carts>()

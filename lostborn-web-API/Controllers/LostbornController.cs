@@ -1,18 +1,20 @@
 ﻿
 using lostborn_backend.Helpers;
 using lostborn_backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace lostborn_backend.Controllers;
-
+[Authorize]
 [ApiController]
 [Route("[controller]")]
-public class LostBornController : Controller{
+public class PaymentController : Controller{
 
     private readonly DataContext dataContext;
 
-    public LostBornController(DataContext dataContext)
+    public PaymentController(DataContext dataContext)
     {
         this.dataContext = dataContext;
     }
@@ -22,7 +24,7 @@ public class LostBornController : Controller{
     [HttpGet]
     public async Task<IActionResult> GetAllMembers()
     {
-        var res = await dataContext.ipaccess.ToListAsync();
+        var res = await dataContext.Access.ToListAsync();
         
         return Ok(res);
     }
@@ -31,11 +33,11 @@ public class LostBornController : Controller{
     [HttpGet("{ID}")]
     public async Task<ActionResult<IPAccess>> GetMember(int ID)
     {
-        if(dataContext.ipaccess == null)
+        if(dataContext.Access == null)
         {
             return NotFound();
         }
-        var member = await dataContext.ipaccess.FindAsync(ID);
+        var member = await dataContext.Access.FindAsync(ID);
 
         if(member == null) { return NotFound(); };
 
@@ -47,7 +49,7 @@ public class LostBornController : Controller{
     [HttpPost]
     public async Task<IActionResult> AddMember([FromBody] IPAccess member)
     {
-        await dataContext.ipaccess.AddAsync(member);
+        await dataContext.Access.AddAsync(member);
         await dataContext.SaveChangesAsync();
 
         return CreatedAtAction(nameof(AddMember), member);
@@ -70,7 +72,7 @@ public class LostBornController : Controller{
         }
 
         // Fetch the updated data from the database
-        var updatedMember = await dataContext.ipaccess.FindAsync(member.ID);
+        var updatedMember = await dataContext.Access.FindAsync(member.ID);
 
         // You can create a custom response object or use an anonymous object
         var response = new
@@ -83,19 +85,19 @@ public class LostBornController : Controller{
         return Ok(response);
     }
     //Helper function to check if a member is present..
-    private bool MemberExists(long id) { return (dataContext.ipaccess?.Any(e => e.ID == id)).GetValueOrDefault(); }
+    private bool MemberExists(long id) { return (dataContext.Access?.Any(e => e.ID == id)).GetValueOrDefault(); }
 
     //API Call to delete a member using Id...(DELETE)
     [HttpDelete("{ID}")]
     public async Task<IActionResult> DeleteMember(int ID)
     {
-        if(dataContext.ipaccess == null) { return NotFound(); }
+        if(dataContext.Access == null) { return NotFound(); }
 
-        var member = await dataContext.ipaccess.FindAsync(ID);
+        var member = await dataContext.Access.FindAsync(ID);
 
         if(member == null) { return NotFound(); }
 
-        dataContext.ipaccess.Remove(member);
+        dataContext.Access.Remove(member);
 
         await dataContext.SaveChangesAsync();
 

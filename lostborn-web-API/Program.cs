@@ -16,6 +16,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true;  // For better JSON readability, optional
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
         
     });

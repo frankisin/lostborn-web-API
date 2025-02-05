@@ -16,16 +16,17 @@ public class TokenService
         // Log the secret for debugging
         //Console.WriteLine($"JwtConfig Secret: {_jwtConfig?.Secret}");
     }
-
     public string GenerateToken(ClaimsIdentity claims)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        byte[] key = Encoding.ASCII.GetBytes(_jwtConfig.Secret);
+        byte[] key = Encoding.ASCII.GetBytes(_jwtConfig.Secret); // Secret from JwtConfig
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = claims,
-            Expires = DateTime.UtcNow.AddMinutes(15), // Token expiration time
+            Expires = DateTime.UtcNow.AddMinutes(60), // Token expiration time
+            Issuer = _jwtConfig.Issuer,  // Add Issuer
+            Audience = _jwtConfig.Audience,  // Add Audience
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
 

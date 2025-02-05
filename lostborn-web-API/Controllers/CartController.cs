@@ -1,13 +1,17 @@
 ﻿using lostborn_backend.Helpers;
 using lostborn_backend.Models;
+using lostborn_web_API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace lostborn_backend.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class CartsController : ControllerBase
@@ -24,7 +28,6 @@ namespace lostborn_backend.Controllers
         {
             return await _context.Carts.ToListAsync();
         }
-
         [HttpGet("{id}")]
         public async Task<ActionResult<Carts>> GetCart(int id)
         {
@@ -37,7 +40,6 @@ namespace lostborn_backend.Controllers
 
             return cart;
         }
-
         [HttpPost]
         public async Task<ActionResult<Carts>> CreateCart(Carts cart)
         {
@@ -50,7 +52,6 @@ namespace lostborn_backend.Controllers
         {
             return _context.Carts.Any(c => c.ID == id);
         }
-        //API Call to update member using Id...(UPDATE)
         [HttpPut]
         public async Task<IActionResult> UpdateCart(Carts member)
         {
@@ -75,7 +76,7 @@ namespace lostborn_backend.Controllers
             }
 
             // Fetch the updated data from the database
-            var updatedMember = await _context.products.FindAsync(member.ID);
+            var updatedMember = await _context.Products.FindAsync(member.ID);
 
             // You can create a custom response object or use an anonymous object
             var response = new
@@ -87,7 +88,6 @@ namespace lostborn_backend.Controllers
             // Return the custom response
             return Ok(response);
         }
-
         [HttpGet("{id}/cartitems")]
         public async Task<ActionResult<IEnumerable<CartItem>>> GetCartItems(int id)
         {
@@ -100,7 +100,6 @@ namespace lostborn_backend.Controllers
 
             return cartItems;
         }
-
         [HttpPost("{id}/cartitems")]
         public async Task<ActionResult<CartItem>> AddCartItem(int id, CartItem cartItem)
         {
@@ -153,9 +152,6 @@ namespace lostborn_backend.Controllers
 
             return Ok(updatedUserCart);
         }
-
-
-
         [HttpPost("{username}/cart/AddToCart")]
         public async Task<IActionResult> AddToCart(string username, [FromBody] CartItemRequest addToCartPayload)
         {
@@ -174,7 +170,7 @@ namespace lostborn_backend.Controllers
             }
 
             // Fetch the product based on the provided ProductID
-            var product = await _context.products.FindAsync(addToCartPayload.ProductID);
+            var product = await _context.Products.FindAsync(addToCartPayload.ProductID);
 
             if (product == null)
             {
@@ -203,11 +199,26 @@ namespace lostborn_backend.Controllers
                 };
 
                 // Add the new CartItem to the CartItems collection within the Cart
-                user.Cart.CartItems.Add(newCartItem);
+                try
+                {
+                    user.Cart.CartItems.Add(newCartItem);
+                }
+                catch(Exception ex)
+                {
+                    Exception exemption = ex;
+                    return BadRequest(new { message = ex.Message });
+                }
+                
             }
-
-            // Save changes to the database
-            await _context.SaveChangesAsync();
+            try
+            {
+                var result = await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Exception exemption = ex;
+                return BadRequest(new { message = ex.Message });
+            }
 
             // Return the updated user cart
             var updatedUserCart = await _context.Users
@@ -217,8 +228,6 @@ namespace lostborn_backend.Controllers
 
             return Ok(updatedUserCart);
         }
-
-
         [HttpPut("{cartId}/cartitems/{itemId}")]
         public async Task<IActionResult> UpdateCartItem(int cartId, int itemId, CartItem updatedCartItem)
         {
@@ -247,6 +256,118 @@ namespace lostborn_backend.Controllers
 
             return NoContent();
         }
+        
+        [HttpPost("checkout")]
+        public async Task<IActionResult> Checkout(CheckoutModel model)
+        {
+            var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            int userId;
+
+            if (int.TryParse(userIdClaim, out userId) && userId != model.UserId)
+            { 
+                // Handle the case where the user ID is not valid or does not match
+                return Unauthorized("Invalid user ID or user ID does not match.");
+            }
+
+            // Attempt to retrieve the user's active cart
+            var cart = await _context.Carts
+                                     .Include(c => c.CartItems)
+                                     .ThenInclude(ci => ci.Product)  // Assuming you want product details too
+                                     .FirstOrDefaultAsync(c => c.UserID == model.UserId);
+
+            if (cart == null)
+            {
+                return NotFound(new { Message = "No active cart found for this user." });
+            }
+
+            // Now construct the payment request
+            PaymentRequest paymentRequest = new PaymentRequest
+            {
+                CardNumber = model.CardNumber,
+                CardExpiry = model.CardExpiry,
+                Cvv = model.Cvv,
+                Amount = cart.CartItems.Sum(item => item.Quantity * item.Product.Price)  // Recalculate to prevent tampering
+            };
+
+            //For future reference, the next PaymentResponse would be pointing to a service with an actual payment provider
+            //Then we would read its response and act accordingly. 
+
+            // Process the payment
+            PaymentResponse paymentResponse = new MockPaymentService().ProcessPayment(paymentRequest);
+
+            if (paymentResponse.IsSuccess)
+            {
+                // Construct a new invoice
+                Invoice newInvoice = new Invoice
+                {
+                    UserID = model.UserId,
+                    InvoiceDate = DateTime.Now,
+                    TotalAmount = cart.CartItems.Sum(item => item.Quantity * item.Product.Price),
+                    InvoiceNumber = GenerateInvoiceNumber(),
+                    PaymentStatus = "Paid",
+                    TransactionId = paymentResponse.TransactionId,
+                    InvoiceItems = cart.CartItems.Select(item => new InvoiceItem
+                    {
+                        ProductID = item.ProductID,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.Product.Price
+                    }).ToList()
+                };
+
+                // Save the new invoice first to ensure the InvoiceID is generated
+                _context.Invoices.Add(newInvoice);
+                await _context.SaveChangesAsync();  // Save here to generate the InvoiceID
+
+                // Now that the InvoiceID is available, log each transaction
+                foreach (var cartItem in cart.CartItems)
+                {
+                    // Fetch the product from the database to update its InStock value
+                    var product = await _context.Products.FindAsync(cartItem.ProductID);
+                    if (product != null)
+                    {
+                        // Reduce the stock by the quantity purchased
+                        product.InStock -= cartItem.Quantity;
+
+                        // Update the product stock in the database
+                        _context.Products.Update(product);
+                    }
+
+                    var transaction = new Transaction
+                    {
+                        ProductID = cartItem.ProductID,
+                        QuantityChange = -cartItem.Quantity,
+                        TransactionType = "SALE",
+                        TransactionDate = DateTime.Now,
+                        InvoiceID = newInvoice.InvoiceID  // Use the saved InvoiceID
+                    };
+
+                    _context.Transactions.Add(transaction);
+                }
+
+                // Save the transactions to the database
+                await _context.SaveChangesAsync();
+
+                // Clear the cart items after successful checkout
+                _context.CartItems.RemoveRange(cart.CartItems);
+
+                // Save the changes to empty the cart
+                await _context.SaveChangesAsync();
+
+                return Ok(new { Message = "Payment and invoice processed successfully", Invoice = newInvoice });
+            }
+            else
+            {
+                return BadRequest(new { Message = "Payment Failed", Error = paymentResponse.ErrorMessage });
+            }
+
+        }
+
+        private string GenerateInvoiceNumber()
+        {
+            var datePart = DateTime.Now.ToString("yyyyMMdd"); // e.g., 20230917
+            var randomPart = new Random().Next(100, 999); // e.g., between 100 and 999
+            return $"INV-{datePart}-{randomPart}";
+        }
 
         private bool CartItemExists(int itemId)
         {
@@ -261,7 +382,5 @@ namespace lostborn_backend.Controllers
             public int CartID { get; set; }
             public int ProductID { get; set; }
         }
-
-        // Additional actions like updating, deleting cart items, etc. can be added here
     }
 }
